@@ -1,74 +1,36 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-    Myvpc:
-        Type: "AWS::EC2::VPC"
-        Properties:
-            CidrBlock: 10.0.0.0/16
-            Tags: 
-                - Key: VPC-1633
-                  Value: MyVPC
-    MySubnet:
-        Type: "AWS::EC2::Subnet"
-        Properties:
-             VpcId: 
-                Ref: Myvpc
-             CidrBlock: 10.0.0.0/24
-             Tags:
-                - Key: Name
-                  Value: MySubnet
-             MapPublicIpOnLaunch: true
-    myprivateSubnet:
-        Type: "AWS::EC2::Subnet"
-        Properties:
-             VpcId: 
-                Ref: Myvpc
-             CidrBlock: 10.0.1.0/24
-             Tags:
-                - Key: Name
-                  Value: MyPrivateSubnet
-    mysubnetrouteassociation:
-        Type: "AWS::EC2::SubnetRouteTableAssociation"
-        Properties:
-            SubnetId:
-                Ref: myprivateSubnet
-            RouteTableId:
-                Ref: RouteTable
-    myInternetGateway:
-        Type: "AWS::EC2::InternetGateway"
-        Properties:
-            Tags:
-                - Key: Name
-                  Value: MyInternetGateway            
-    RouteTable:
-        Type: "AWS::EC2::RouteTable"
-        Properties:
-            VpcId:
-                Ref: Myvpc
-            Tags:
-                - Key: Name
-                  Value: MyRouteTable
-    Myroutetableassociation:
-        Type: "AWS::EC2::SubnetRouteTableAssociation"
-        Properties:
-            SubnetId:
-                Ref: MySubnet
-            RouteTableId:
-                Ref: RouteTable 
-    VPCGatewayattachment:
-        Type: "AWS::EC2::VPCGatewayAttachment"
-        Properties:
-            VpcId:
-                Ref: Myvpc
-            InternetGatewayId:
-                Ref: myInternetGateway
-    mypublicroute:
-        Type: "AWS::EC2::Route"
-        DependsOn: VPCGatewayattachmen
-        Properties:
-            RouteTableId:
-                Ref: RouteTable
-            DestinationCidrBlock: 0.0.0.0/16
-            GatewayId:
-                Ref: myInternetGateway
-    
-        
+  MyS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: 'my-s3-bucket-darshan-1633'
+      Tags:
+        - Key: Name
+          Value: MyS3Bucket
+      VersioningConfiguration:
+        Status: Enabled 
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+  BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      PolicyDocument:   
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: 'arn:aws:s3:::my-s3-bucket-darshan-1633/*'
+      Bucket:
+        Ref: MyS3Bucket
+
+         
